@@ -9,9 +9,9 @@ import com.example.Project_BE.Project_BE.exception.NotFoundException;
 import com.example.Project_BE.Project_BE.repository.AdminRepository;
 import org.springframework.stereotype.Service;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class TokoImpl implements TokoService {
@@ -19,7 +19,7 @@ public class TokoImpl implements TokoService {
     private final TokoRepository tokoRepository;
     private final AdminRepository adminRepository;
 
-    public TokoImpl(com.example.Project_BE.Project_BE.repository.TokoRepository tokoRepository, AdminRepository adminRepository) {
+    public TokoImpl(TokoRepository tokoRepository, AdminRepository adminRepository) {
         this.tokoRepository = tokoRepository;
         this.adminRepository = adminRepository;
     }
@@ -41,55 +41,58 @@ public class TokoImpl implements TokoService {
 
     @Override
     public TokoDTO tambahTokoDTO(Long idAdmin, TokoDTO tokoDTO) {
-        // Find the admin by id
         Admin admin = adminRepository.findById(idAdmin)
                 .orElseThrow(() -> new NotFoundException("Admin with ID " + idAdmin + " not found"));
 
-        // Create and populate the Toko model with food toko only
         Toko toko = new Toko();
-        toko.setAdmin(admin);  // Associate the admin
-        toko.setNamaMakanan(tokoDTO.getNamaMakanan()); // Set food toko only
+        toko.setAdmin(admin);
+        toko.setNamaMakanan(tokoDTO.getNamaMakanan());
+        toko.setHarga(tokoDTO.getHarga());
 
-        // Save the toko to the repository
         Toko savedData = tokoRepository.save(toko);
 
-        // Prepare the DTO response
         TokoDTO result = new TokoDTO();
         result.setId(savedData.getId());
         result.setIdAdmin(admin.getId());
-        result.setNamaMakanan(savedData.getNamaMakanan(tokoDTO.getNamaMakanan()));
+        result.setNamaMakanan(savedData.getNamaMakanan());
+        result.setHarga(savedData.getHarga());
 
         return result;
     }
 
     @Override
-    public TokoDTO editTokoDTO(Long id, Long idAdmin, TokoDTO tokoDTO) throws IOException {
-        // Fetch existing Toko toko
+    public TokoDTO editTokoDTO(Long id, Long idAdmin, TokoDTO tokoDTO) {
         Toko existingData = tokoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Data not found"));
+                .orElseThrow(() -> new NotFoundException("Toko with ID " + id + " not found"));
 
-        // Fetch the admin associated with the toko
         Admin admin = adminRepository.findById(idAdmin)
                 .orElseThrow(() -> new NotFoundException("Admin with ID " + idAdmin + " not found"));
 
-        // Update only food toko
         existingData.setAdmin(admin);
-        existingData.getNamaMakanan(tokoDTO.getNamaMakanan());
+        existingData.setNamaMakanan(tokoDTO.getNamaMakanan());
+        existingData.setHarga(tokoDTO.getHarga());
 
-        // Save updated toko
         Toko updatedData = tokoRepository.save(existingData);
 
-        // Prepare and return DTO response
         TokoDTO result = new TokoDTO();
         result.setId(updatedData.getId());
         result.setIdAdmin(admin.getId());
-        result.setNamaMakanan(updatedData.getNamaMakanan(tokoDTO.getNamaMakanan()));
+        result.setNamaMakanan(updatedData.getNamaMakanan());
+        result.setHarga(updatedData.getHarga());
 
         return result;
     }
 
     @Override
-    public void deleteToko(Long id) throws IOException {
+    public void deleteToko(Long id) {
         tokoRepository.deleteById(id);
+    }
+
+    @Override
+    public List<TokoDTO> getAllTokoDTO() {
+        List<Toko> tokoList = tokoRepository.findAll();
+        return tokoList.stream()
+                .map(toko -> new TokoDTO(toko))  // Konversi setiap Toko ke TokoDTO
+                .collect(Collectors.toList());
     }
 }

@@ -18,4 +18,7 @@ public interface TokoService {
     TokoDTO editTokoDTO(Long id, Long idAdmin, TokoDTO tokoDTO) throws IOException;
 
     void deleteToko(Long id) throws IOException;
+
+    // Tambahkan metode baru untuk mendapatkan semua toko dalam bentuk TokoDTO
+    List<TokoDTO> getAllTokoDTO();  // Ini adalah metode yang baru ditambahkan
 }

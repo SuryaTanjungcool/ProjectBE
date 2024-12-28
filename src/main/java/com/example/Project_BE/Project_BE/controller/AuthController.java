@@ -1,6 +1,5 @@
 package com.example.Project_BE.Project_BE.controller;
 
-
 import com.example.Project_BE.Project_BE.model.LoginRequest;
 import com.example.Project_BE.Project_BE.securityNew.JwtTokenUtil;
 import com.example.Project_BE.Project_BE.service.AuthService;
@@ -16,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/api/admin")  // Sesuaikan endpoint untuk admin
+@RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:3000")
 public class AuthController {
 
@@ -32,9 +31,9 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {  // Ganti LoginRequest menjadi AdminLoginRequest
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
-            Map<String, Object> response = authService.authenticate(loginRequest);  // Ganti authenticate menjadi authenticateAdmin
+            Map<String, Object> response = authService.authenticate(loginRequest);
             return new ResponseEntity<>(response, HttpStatus.OK);
         } catch (BadCredentialsException e) {
             return new ResponseEntity<>("Invalid email or password", HttpStatus.UNAUTHORIZED);
