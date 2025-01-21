@@ -1,24 +1,27 @@
 package com.example.Project_BE.Project_BE.service;
 
 import com.example.Project_BE.Project_BE.DTO.TokoDTO;
+import com.example.Project_BE.Project_BE.model.Toko;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 public interface TokoService {
-    List<com.example.Project_BE.Project_BE.model.Toko> getAllToko();
+    List<Toko> getAllToko();
 
-    List<com.example.Project_BE.Project_BE.model.Toko> getAllByAdmin(Long idAdmin);
+    List<Toko> getAllByAdmin(Long idAdmin);
 
-    Optional<com.example.Project_BE.Project_BE.model.Toko> getTokoById(Long id);
+    Optional<Toko> getTokoById(Long id);
 
-    TokoDTO tambahTokoDTO(Long idAdmin, TokoDTO dataDTO);
+    TokoDTO tambahTokoDTO(Long idAdmin, TokoDTO tokoDTO);
 
     TokoDTO editTokoDTO(Long id, Long idAdmin, TokoDTO tokoDTO) throws IOException;
 
-    void deleteToko(Long id) throws IOException;
+    String editUploadFoto(Long id, MultipartFile file) throws IOException;
 
-    // Tambahkan metode baru untuk mendapatkan semua toko dalam bentuk TokoDTO
-    List<TokoDTO> getAllTokoDTO();  // Ini adalah metode yang baru ditambahkan
+    String uploadFoto(MultipartFile file) throws IOException;
+
+    void deleteToko(Long id) throws IOException;
 }

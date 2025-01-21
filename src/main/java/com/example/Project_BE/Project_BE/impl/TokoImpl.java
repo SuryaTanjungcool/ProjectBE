@@ -1,23 +1,33 @@
 package com.example.Project_BE.Project_BE.impl;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.Project_BE.Project_BE.DTO.TokoDTO;
+import com.example.Project_BE.Project_BE.exception.NotFoundException;
 import com.example.Project_BE.Project_BE.model.Admin;
 import com.example.Project_BE.Project_BE.model.Toko;
-import com.example.Project_BE.Project_BE.service.TokoService;
-import com.example.Project_BE.Project_BE.repository.TokoRepository;
-import com.example.Project_BE.Project_BE.exception.NotFoundException;
 import com.example.Project_BE.Project_BE.repository.AdminRepository;
+import com.example.Project_BE.Project_BE.repository.TokoRepository;
+import com.example.Project_BE.Project_BE.service.TokoService;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class TokoImpl implements TokoService {
 
+    private static final String BASE_URL = "https://s3.lynk2.co/api/s3";
     private final TokoRepository tokoRepository;
     private final AdminRepository adminRepository;
+    private final RestTemplate restTemplate = new RestTemplate();
 
     public TokoImpl(TokoRepository tokoRepository, AdminRepository adminRepository) {
         this.tokoRepository = tokoRepository;
@@ -42,57 +52,101 @@ public class TokoImpl implements TokoService {
     @Override
     public TokoDTO tambahTokoDTO(Long idAdmin, TokoDTO tokoDTO) {
         Admin admin = adminRepository.findById(idAdmin)
-                .orElseThrow(() -> new NotFoundException("Admin with ID " + idAdmin + " not found"));
+                .orElseThrow(() -> new NotFoundException("Admin not found"));
 
         Toko toko = new Toko();
         toko.setAdmin(admin);
-        toko.setNamaMakanan(tokoDTO.getNamaMakanan());
-        toko.setHarga(tokoDTO.getHarga());
+        toko.setNamaToko(tokoDTO.getNamaToko());
+        toko.setAlamatToko(tokoDTO.getAlamatToko());
+        toko.setHargaToko(tokoDTO.getHargaToko());
+        toko.setFotoUrl(tokoDTO.getFotoUrl());
 
-        Toko savedData = tokoRepository.save(toko);
+        Toko savedToko = tokoRepository.save(toko);
 
         TokoDTO result = new TokoDTO();
-        result.setId(savedData.getId());
-        result.setIdAdmin(admin.getId());
-        result.setNamaMakanan(savedData.getNamaMakanan());
-        result.setHarga(savedData.getHarga());
+        result.setId(savedToko.getId());
+        result.setNamaToko(savedToko.getNamaToko());
+        result.setAlamatToko(savedToko.getAlamatToko());
+        result.setHargaToko(savedToko.getHargaToko());
+        result.setFotoUrl(savedToko.getFotoUrl());
 
         return result;
     }
 
     @Override
-    public TokoDTO editTokoDTO(Long id, Long idAdmin, TokoDTO tokoDTO) {
-        Toko existingData = tokoRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Toko with ID " + id + " not found"));
+    public TokoDTO editTokoDTO(Long id, Long idAdmin, TokoDTO tokoDTO) throws IOException {
+        Toko existingToko = tokoRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Toko tidak ditemukan"));
 
         Admin admin = adminRepository.findById(idAdmin)
-                .orElseThrow(() -> new NotFoundException("Admin with ID " + idAdmin + " not found"));
+                .orElseThrow(() -> new NotFoundException("Admin dengan ID " + idAdmin + " tidak ditemukan"));
 
-        existingData.setAdmin(admin);
-        existingData.setNamaMakanan(tokoDTO.getNamaMakanan());
-        existingData.setHarga(tokoDTO.getHarga());
+        existingToko.setAdmin(admin);
+        existingToko.setNamaToko(tokoDTO.getNamaToko());
+        existingToko.setAlamatToko(tokoDTO.getAlamatToko());
+        existingToko.setHargaToko(tokoDTO.getHargaToko());
 
-        Toko updatedData = tokoRepository.save(existingData);
+        Toko updatedToko = tokoRepository.save(existingToko);
 
         TokoDTO result = new TokoDTO();
-        result.setId(updatedData.getId());
-        result.setIdAdmin(admin.getId());
-        result.setNamaMakanan(updatedData.getNamaMakanan());
-        result.setHarga(updatedData.getHarga());
+        result.setId(updatedToko.getId());
+        result.setNamaToko(updatedToko.getNamaToko());
+        result.setAlamatToko(updatedToko.getAlamatToko());
+        result.setHargaToko(updatedToko.getHargaToko());
 
         return result;
     }
 
     @Override
-    public void deleteToko(Long id) {
-        tokoRepository.deleteById(id);
+    public String uploadFoto(MultipartFile file) throws IOException {
+        String uploadUrl = BASE_URL + "/uploadFoto";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", file.getResource());
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(uploadUrl, HttpMethod.POST, requestEntity, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return extractFileUrlFromResponse(response.getBody());
+        } else {
+            throw new IOException("Failed to upload file: " + response.getStatusCode());
+        }
     }
 
     @Override
-    public List<TokoDTO> getAllTokoDTO() {
-        List<Toko> tokoList = tokoRepository.findAll();
-        return tokoList.stream()
-                .map(toko -> new TokoDTO(toko))  // Konversi setiap Toko ke TokoDTO
-                .collect(Collectors.toList());
+    public String editUploadFoto(Long id, MultipartFile file) throws IOException {
+        String editUrl = BASE_URL + "/editUploadFoto";
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file", file.getResource());
+        body.add("fileId", id.toString());
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(editUrl, HttpMethod.PUT, requestEntity, String.class);
+
+        if (response.getStatusCode() == HttpStatus.OK) {
+            return extractFileUrlFromResponse(response.getBody());
+        } else {
+            throw new IOException("Failed to update file: " + response.getStatusCode());
+        }
+    }
+
+    private String extractFileUrlFromResponse(String responseBody) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonResponse = mapper.readTree(responseBody);
+        JsonNode dataNode = jsonResponse.path("data");
+        return dataNode.path("url_file").asText();
+    }
+
+    @Override
+    public void deleteToko(Long id) throws IOException {
+        tokoRepository.deleteById(id);
     }
 }

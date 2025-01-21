@@ -1,25 +1,13 @@
 package com.example.Project_BE.Project_BE.DTO;
 
-import com.example.Project_BE.Project_BE.model.Toko;
-
 public class TokoDTO {
     private Long id;
     private Long idAdmin;
-    private String namaMakanan;
-    private Double harga;
+    private String namaToko;
+    private String alamatToko;
+    private Double hargaToko;
+    private String fotoUrl;
 
-    // Konstruktor tanpa parameter
-    public TokoDTO() {}
-
-    // Konstruktor dengan parameter Toko untuk mengubah Toko ke TokoDTO
-    public TokoDTO(Toko toko) {
-        this.id = toko.getId();
-        this.idAdmin = toko.getAdmin().getId(); // Mengambil ID Admin dari objek Toko
-        this.namaMakanan = toko.getNamaMakanan();
-        this.harga = toko.getHarga();
-    }
-
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -36,19 +24,35 @@ public class TokoDTO {
         this.idAdmin = idAdmin;
     }
 
-    public String getNamaMakanan() {
-        return namaMakanan;
+    public String getNamaToko() {
+        return namaToko;
     }
 
-    public void setNamaMakanan(String namaMakanan) {
-        this.namaMakanan = namaMakanan;
+    public void setNamaToko(String namaToko) {
+        this.namaToko = namaToko;
     }
 
-    public Double getHarga() {
-        return harga;
+    public String getAlamatToko() {
+        return alamatToko;
     }
 
-    public void setHarga(Double harga) {
-        this.harga = harga;
+    public void setAlamatToko(String alamatToko) {
+        this.alamatToko = alamatToko;
+    }
+
+    public Double getHargaToko() {
+        return hargaToko;
+    }
+
+    public void setHargaToko(Double hargaToko) {
+        this.hargaToko = hargaToko;
+    }
+
+    public String getFotoUrl() {
+        return fotoUrl;
+    }
+
+    public void setFotoUrl(String fotoUrl) {
+        this.fotoUrl = fotoUrl;
     }
 }
