@@ -13,8 +13,7 @@ public class Toko {
     @Column(name = "nama_toko")
     private String namaToko;
 
-    @Column(name = "alamat_toko")
-    private String alamatToko;
+
 
     @Column(name = "harga_toko")
     private Double hargaToko;
@@ -33,7 +32,7 @@ public class Toko {
         this.id = id;
         this.admin = admin;
         this.namaToko = namaToko;
-        this.alamatToko = alamatToko;
+
         this.hargaToko = hargaToko;
         this.fotoUrl = fotoUrl;
     }
@@ -54,13 +53,9 @@ public class Toko {
         this.namaToko = namaToko;
     }
 
-    public String getAlamatToko() {
-        return alamatToko;
-    }
 
-    public void setAlamatToko(String alamatToko) {
-        this.alamatToko = alamatToko;
-    }
+
+
 
     public Double getHargaToko() {
         return hargaToko;

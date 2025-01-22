@@ -4,10 +4,31 @@ public class TokoDTO {
     private Long id;
     private Long idAdmin;
     private String namaToko;
-    private String alamatToko;
     private Double hargaToko;
     private String fotoUrl;
 
+    // Tambahkan properti berikut
+    private String namaKue;
+    private Double hargaKue;
+
+    // Getters dan Setters untuk properti baru
+    public String getNamaKue() {
+        return namaKue;
+    }
+
+    public void setNamaKue(String namaKue) {
+        this.namaKue = namaKue;
+    }
+
+    public Double getHargaKue() {
+        return hargaKue;
+    }
+
+    public void setHargaKue(Double hargaKue) {
+        this.hargaKue = hargaKue;
+    }
+
+    // Getters dan Setters yang sudah ada
     public Long getId() {
         return id;
     }
@@ -30,14 +51,6 @@ public class TokoDTO {
 
     public void setNamaToko(String namaToko) {
         this.namaToko = namaToko;
-    }
-
-    public String getAlamatToko() {
-        return alamatToko;
-    }
-
-    public void setAlamatToko(String alamatToko) {
-        this.alamatToko = alamatToko;
     }
 
     public Double getHargaToko() {

@@ -66,6 +66,7 @@ public class TokoController {
         return ResponseEntity.ok(savedToko);
     }
 
+    // Endpoint untuk edit toko
     @PutMapping("/toko/editById/{id}")
     public ResponseEntity<TokoDTO> editToko(
             @PathVariable Long id,

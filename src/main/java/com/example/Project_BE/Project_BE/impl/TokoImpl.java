@@ -57,7 +57,7 @@ public class TokoImpl implements TokoService {
         Toko toko = new Toko();
         toko.setAdmin(admin);
         toko.setNamaToko(tokoDTO.getNamaToko());
-        toko.setAlamatToko(tokoDTO.getAlamatToko());
+
         toko.setHargaToko(tokoDTO.getHargaToko());
         toko.setFotoUrl(tokoDTO.getFotoUrl());
 
@@ -66,7 +66,7 @@ public class TokoImpl implements TokoService {
         TokoDTO result = new TokoDTO();
         result.setId(savedToko.getId());
         result.setNamaToko(savedToko.getNamaToko());
-        result.setAlamatToko(savedToko.getAlamatToko());
+
         result.setHargaToko(savedToko.getHargaToko());
         result.setFotoUrl(savedToko.getFotoUrl());
 
@@ -83,7 +83,7 @@ public class TokoImpl implements TokoService {
 
         existingToko.setAdmin(admin);
         existingToko.setNamaToko(tokoDTO.getNamaToko());
-        existingToko.setAlamatToko(tokoDTO.getAlamatToko());
+
         existingToko.setHargaToko(tokoDTO.getHargaToko());
 
         Toko updatedToko = tokoRepository.save(existingToko);
@@ -91,7 +91,7 @@ public class TokoImpl implements TokoService {
         TokoDTO result = new TokoDTO();
         result.setId(updatedToko.getId());
         result.setNamaToko(updatedToko.getNamaToko());
-        result.setAlamatToko(updatedToko.getAlamatToko());
+
         result.setHargaToko(updatedToko.getHargaToko());
 
         return result;
