@@ -13,7 +13,6 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -57,7 +56,6 @@ public class TokoImpl implements TokoService {
         Toko toko = new Toko();
         toko.setAdmin(admin);
         toko.setNamaToko(tokoDTO.getNamaToko());
-
         toko.setHargaToko(tokoDTO.getHargaToko());
         toko.setFotoUrl(tokoDTO.getFotoUrl());
 
@@ -66,7 +64,6 @@ public class TokoImpl implements TokoService {
         TokoDTO result = new TokoDTO();
         result.setId(savedToko.getId());
         result.setNamaToko(savedToko.getNamaToko());
-
         result.setHargaToko(savedToko.getHargaToko());
         result.setFotoUrl(savedToko.getFotoUrl());
 
@@ -74,31 +71,42 @@ public class TokoImpl implements TokoService {
     }
 
     @Override
-    public TokoDTO editTokoDTO(Long id, Long idAdmin, TokoDTO tokoDTO) throws IOException {
+    public TokoDTO editTokoDTO(Long id, Long idAdmin, String tokoJson, MultipartFile file) throws IOException {
         Toko existingToko = tokoRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Toko tidak ditemukan"));
 
         Admin admin = adminRepository.findById(idAdmin)
-                .orElseThrow(() -> new NotFoundException("Admin dengan ID " + idAdmin + " tidak ditemukan"));
+                .orElseThrow(() -> new NotFoundException("Admin tidak ditemukan"));
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        TokoDTO tokoDTO = objectMapper.readValue(tokoJson, TokoDTO.class);
 
         existingToko.setAdmin(admin);
         existingToko.setNamaToko(tokoDTO.getNamaToko());
-
         existingToko.setHargaToko(tokoDTO.getHargaToko());
+
+        if (file != null) {
+            String fotoUrl = uploadFoto(file);
+            existingToko.setFotoUrl(fotoUrl);
+        }
 
         Toko updatedToko = tokoRepository.save(existingToko);
 
         TokoDTO result = new TokoDTO();
         result.setId(updatedToko.getId());
         result.setNamaToko(updatedToko.getNamaToko());
-
         result.setHargaToko(updatedToko.getHargaToko());
+        result.setFotoUrl(updatedToko.getFotoUrl());
 
         return result;
     }
 
     @Override
-    public String uploadFoto(MultipartFile file) throws IOException {
+    public void deleteToko(Long id) throws IOException {
+        tokoRepository.deleteById(id);
+    }
+
+    private String uploadFoto(MultipartFile file) throws IOException {
         String uploadUrl = BASE_URL + "/uploadFoto";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.MULTIPART_FORM_DATA);
@@ -117,36 +125,10 @@ public class TokoImpl implements TokoService {
         }
     }
 
-    @Override
-    public String editUploadFoto(Long id, MultipartFile file) throws IOException {
-        String editUrl = BASE_URL + "/editUploadFoto";
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
-
-        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
-        body.add("file", file.getResource());
-        body.add("fileId", id.toString());
-
-        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
-
-        ResponseEntity<String> response = restTemplate.exchange(editUrl, HttpMethod.PUT, requestEntity, String.class);
-
-        if (response.getStatusCode() == HttpStatus.OK) {
-            return extractFileUrlFromResponse(response.getBody());
-        } else {
-            throw new IOException("Failed to update file: " + response.getStatusCode());
-        }
-    }
-
     private String extractFileUrlFromResponse(String responseBody) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonResponse = mapper.readTree(responseBody);
         JsonNode dataNode = jsonResponse.path("data");
         return dataNode.path("url_file").asText();
-    }
-
-    @Override
-    public void deleteToko(Long id) throws IOException {
-        tokoRepository.deleteById(id);
     }
 }

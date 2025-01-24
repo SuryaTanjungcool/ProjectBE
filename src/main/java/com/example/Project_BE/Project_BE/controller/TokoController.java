@@ -1,6 +1,5 @@
 package com.example.Project_BE.Project_BE.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.example.Project_BE.Project_BE.DTO.TokoDTO;
 import com.example.Project_BE.Project_BE.model.Toko;
 import com.example.Project_BE.Project_BE.service.TokoService;
@@ -12,7 +11,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "*") // Mengizinkan semua domain (bisa disesuaikan dengan domain front-end)
 @RestController
 @RequestMapping("/api/admin")
 public class TokoController {
@@ -23,72 +22,49 @@ public class TokoController {
         this.tokoService = tokoService;
     }
 
+    // Mengambil semua data toko
     @GetMapping("/toko/all")
     public ResponseEntity<List<Toko>> getAllToko() {
         List<Toko> tokoList = tokoService.getAllToko();
         return ResponseEntity.ok(tokoList);
     }
 
+    // Mengambil semua data toko berdasarkan ID admin
     @GetMapping("/toko/getAllByAdmin/{idAdmin}")
     public ResponseEntity<List<Toko>> getAllByAdmin(@PathVariable Long idAdmin) {
         List<Toko> tokoList = tokoService.getAllByAdmin(idAdmin);
         return ResponseEntity.ok(tokoList);
     }
 
+    // Mengambil data toko berdasarkan ID toko
     @GetMapping("/toko/getById/{id}")
     public ResponseEntity<Toko> getTokoById(@PathVariable Long id) {
         Optional<Toko> toko = tokoService.getTokoById(id);
         return toko.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    // Menambahkan data toko baru
     @PostMapping("/toko/tambah/{idAdmin}")
     public ResponseEntity<TokoDTO> tambahToko(
             @PathVariable Long idAdmin,
-            @RequestParam("toko") String tokoJson,
-            @RequestParam("file") MultipartFile file) throws IOException {
-
-        // Convert the toko JSON string to TokoDTO
-        ObjectMapper objectMapper = new ObjectMapper();
-        TokoDTO tokoDTO = objectMapper.readValue(tokoJson, TokoDTO.class);
-
-        // Upload the photo and get the photo URL from TokoService
-        String fotoUrl = tokoService.uploadFoto(file);  // Call the uploadFoto from the service implementation
-
-        // Set the photo URL in the DTO
-        tokoDTO.setFotoUrl(fotoUrl);
-
-        // Save the toko with the photo URL
+            @RequestBody TokoDTO tokoDTO) {
         TokoDTO savedToko = tokoService.tambahTokoDTO(idAdmin, tokoDTO);
-
-        // Log to ensure the fotoUrl is set correctly
-        System.out.println("Saved Toko: " + savedToko);
-
         return ResponseEntity.ok(savedToko);
     }
 
-    // Endpoint untuk edit toko
-    @PutMapping("/toko/editById/{id}")
+    // Mengedit data toko
+    @PutMapping("/toko/edit/{id}/{idAdmin}")
     public ResponseEntity<TokoDTO> editToko(
             @PathVariable Long id,
-            @RequestParam Long idAdmin,
-            @RequestParam(required = false) MultipartFile file,
-            @RequestParam String toko) throws IOException {
+            @PathVariable Long idAdmin,
+            @RequestParam("toko") String tokoJson,
+            @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
 
-        // Deserialize the toko JSON to get shop details
-        ObjectMapper objectMapper = new ObjectMapper();
-        TokoDTO tokoDTO = objectMapper.readValue(toko, TokoDTO.class);
-
-        // If a new file is provided, upload it and update the fotoUrl
-        if (file != null) {
-            String fotoUrl = tokoService.editUploadFoto(id, file);
-            tokoDTO.setFotoUrl(fotoUrl);
-        }
-
-        // Edit the other toko fields without photo
-        TokoDTO updatedToko = tokoService.editTokoDTO(id, idAdmin, tokoDTO);
+        TokoDTO updatedToko = tokoService.editTokoDTO(id, idAdmin, tokoJson, file);
         return ResponseEntity.ok(updatedToko);
     }
 
+    // Menghapus data toko
     @DeleteMapping("/toko/delete/{id}")
     public ResponseEntity<Void> deleteToko(@PathVariable Long id) throws IOException {
         tokoService.deleteToko(id);

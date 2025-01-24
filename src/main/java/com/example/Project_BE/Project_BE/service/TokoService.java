@@ -17,11 +17,7 @@ public interface TokoService {
 
     TokoDTO tambahTokoDTO(Long idAdmin, TokoDTO tokoDTO);
 
-    TokoDTO editTokoDTO(Long id, Long idAdmin, TokoDTO tokoDTO) throws IOException;
-
-    String editUploadFoto(Long id, MultipartFile file) throws IOException;
-
-    String uploadFoto(MultipartFile file) throws IOException;
+    TokoDTO editTokoDTO(Long id, Long idAdmin, String tokoJson, MultipartFile file) throws IOException;
 
     void deleteToko(Long id) throws IOException;
 }
