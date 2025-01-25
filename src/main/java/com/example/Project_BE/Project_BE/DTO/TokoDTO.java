@@ -7,28 +7,7 @@ public class TokoDTO {
     private Double hargaToko;
     private String fotoUrl;
 
-    // Tambahkan properti berikut
-    private String namaKue;
-    private Double hargaKue;
-
-    // Getters dan Setters untuk properti baru
-    public String getNamaKue() {
-        return namaKue;
-    }
-
-    public void setNamaKue(String namaKue) {
-        this.namaKue = namaKue;
-    }
-
-    public Double getHargaKue() {
-        return hargaKue;
-    }
-
-    public void setHargaKue(Double hargaKue) {
-        this.hargaKue = hargaKue;
-    }
-
-    // Getters dan Setters yang sudah ada
+    // Getters and Setters
     public Long getId() {
         return id;
     }

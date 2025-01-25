@@ -13,8 +13,6 @@ public class Toko {
     @Column(name = "nama_toko")
     private String namaToko;
 
-
-
     @Column(name = "harga_toko")
     private Double hargaToko;
 
@@ -25,18 +23,7 @@ public class Toko {
     @JoinColumn(name = "id_admin", nullable = false)
     private Admin admin;
 
-    public Toko() {
-    }
-
-    public Toko(Long id, Admin admin, String namaToko, String alamatToko, Double hargaToko, String fotoUrl) {
-        this.id = id;
-        this.admin = admin;
-        this.namaToko = namaToko;
-
-        this.hargaToko = hargaToko;
-        this.fotoUrl = fotoUrl;
-    }
-
+    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -52,10 +39,6 @@ public class Toko {
     public void setNamaToko(String namaToko) {
         this.namaToko = namaToko;
     }
-
-
-
-
 
     public Double getHargaToko() {
         return hargaToko;

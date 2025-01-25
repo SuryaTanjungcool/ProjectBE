@@ -11,7 +11,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-@CrossOrigin(origins = "*") // Mengizinkan semua domain (bisa disesuaikan dengan domain front-end)
+@CrossOrigin(origins = "*")
 @RestController
 @RequestMapping("/api/admin")
 public class TokoController {
@@ -22,49 +22,37 @@ public class TokoController {
         this.tokoService = tokoService;
     }
 
-    // Mengambil semua data toko
     @GetMapping("/toko/all")
     public ResponseEntity<List<Toko>> getAllToko() {
-        List<Toko> tokoList = tokoService.getAllToko();
-        return ResponseEntity.ok(tokoList);
+        return ResponseEntity.ok(tokoService.getAllToko());
     }
 
-    // Mengambil semua data toko berdasarkan ID admin
     @GetMapping("/toko/getAllByAdmin/{idAdmin}")
     public ResponseEntity<List<Toko>> getAllByAdmin(@PathVariable Long idAdmin) {
-        List<Toko> tokoList = tokoService.getAllByAdmin(idAdmin);
-        return ResponseEntity.ok(tokoList);
+        return ResponseEntity.ok(tokoService.getAllByAdmin(idAdmin));
     }
 
-    // Mengambil data toko berdasarkan ID toko
     @GetMapping("/toko/getById/{id}")
     public ResponseEntity<Toko> getTokoById(@PathVariable Long id) {
-        Optional<Toko> toko = tokoService.getTokoById(id);
-        return toko.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+        return tokoService.getTokoById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    // Menambahkan data toko baru
     @PostMapping("/toko/tambah/{idAdmin}")
-    public ResponseEntity<TokoDTO> tambahToko(
-            @PathVariable Long idAdmin,
-            @RequestBody TokoDTO tokoDTO) {
-        TokoDTO savedToko = tokoService.tambahTokoDTO(idAdmin, tokoDTO);
-        return ResponseEntity.ok(savedToko);
+    public ResponseEntity<TokoDTO> tambahToko(@PathVariable Long idAdmin, @RequestBody TokoDTO tokoDTO) {
+        return ResponseEntity.ok(tokoService.tambahTokoDTO(idAdmin, tokoDTO));
     }
 
-    // Mengedit data toko
     @PutMapping("/toko/edit/{id}/{idAdmin}")
     public ResponseEntity<TokoDTO> editToko(
             @PathVariable Long id,
             @PathVariable Long idAdmin,
             @RequestParam("toko") String tokoJson,
             @RequestParam(value = "file", required = false) MultipartFile file) throws IOException {
-
-        TokoDTO updatedToko = tokoService.editTokoDTO(id, idAdmin, tokoJson, file);
-        return ResponseEntity.ok(updatedToko);
+        return ResponseEntity.ok(tokoService.editTokoDTO(id, idAdmin, tokoJson, file));
     }
 
-    // Menghapus data toko
     @DeleteMapping("/toko/delete/{id}")
     public ResponseEntity<Void> deleteToko(@PathVariable Long id) throws IOException {
         tokoService.deleteToko(id);
